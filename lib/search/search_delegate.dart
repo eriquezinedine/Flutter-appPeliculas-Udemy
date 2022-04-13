@@ -37,9 +37,10 @@ class MovieSearchDelegate extends SearchDelegate {
     }
 
     final moviesProvider = Provider.of<MoviesProvider>(context, listen: false);
+    moviesProvider.getSuggestionsByQuery( query);
 
-    return FutureBuilder(
-      future: moviesProvider.searchMovie(query),
+    return StreamBuilder(
+      stream: moviesProvider.suggestionStream,
       builder: (BuildContext context, AsyncSnapshot<List<Movie>> snapshot) {
         if (!snapshot.hasData) return noData();
 
@@ -85,3 +86,5 @@ class _MovieItem extends StatelessWidget {
     );
   }
 }
+
+

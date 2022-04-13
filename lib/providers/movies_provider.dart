@@ -1,8 +1,8 @@
-import 'dart:convert';
-import 'dart:developer';
+import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:peliculas_app/helpers/debouser.dart';
 import 'package:peliculas_app/models/models.dart';
 import 'package:peliculas_app/models/search_response.dart';
 
@@ -19,6 +19,13 @@ class MoviesProvider extends ChangeNotifier {
 
   int _popularPage = 0;
 
+  final debouncer =  Debouncer(
+    duration: const Duration( milliseconds: 500)
+  );
+
+  final StreamController<List<Movie>> _suggestionStreamController = new StreamController.broadcast();
+
+  Stream<List<Movie>> get suggestionStream => this._suggestionStreamController.stream;
 
   MoviesProvider(){
     print('INICIALIZO UNA CLASE');
@@ -96,5 +103,17 @@ class MoviesProvider extends ChangeNotifier {
     return searchResponse.results;
   }
 
+
+  void getSuggestionsByQuery(String query ){
+     debouncer.value ='';
+     debouncer.onValue = (value) async {
+      //  print('zinedine valor a buscar $value'); // *** ESTO SE EMITE CADA VES QUE DEJO DE ESCRIBIR
+      final resuelts = await this.searchMovie(value);
+      _suggestionStreamController.add(resuelts);
+     };
+        debouncer.value = query;
+  }
+
+  //* Como funciona los Stream ver el siguiente video 
 
 }
